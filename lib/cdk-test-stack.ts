@@ -1,19 +1,16 @@
-import { Duration, Stack, StackProps } from 'aws-cdk-lib';
-import * as sns from 'aws-cdk-lib/aws-sns';
-import * as subs from 'aws-cdk-lib/aws-sns-subscriptions';
-import * as sqs from 'aws-cdk-lib/aws-sqs';
-import { Construct } from 'constructs';
+import { CfnOutput, Stack, StackProps } from "aws-cdk-lib";
+import { Bucket, BucketEncryption } from "aws-cdk-lib/aws-s3";
+import { Construct } from "constructs";
 
 export class CdkTestStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
-
-    const queue = new sqs.Queue(this, 'CdkTestQueue', {
-      visibilityTimeout: Duration.seconds(300)
+    const bucket = new Bucket(this, "MyCDKTestBucketApp", {
+      encryption: BucketEncryption.S3_MANAGED,
     });
-
-    const topic = new sns.Topic(this, 'CdkTestTopic');
-
-    topic.addSubscription(new subs.SqsSubscription(queue));
+    new CfnOutput(this, "MyCDKTestBucketAppNameExport", {
+      value: bucket.bucketName,
+      exportName: "MyCDKTestBucketAppNameExportName",
+    });
   }
 }
